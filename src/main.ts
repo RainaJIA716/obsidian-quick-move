@@ -8,15 +8,23 @@ import {
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	SettingDefinitionItem,
 	TFile,
 	TFolder,
 	View,
+	getLanguage,
 	normalizePath,
+	requireApiVersion,
 } from "obsidian";
 
 interface FolderEntry {
 	path: string;
 	alias: string;
+}
+
+interface AppSetting {
+	open(): void;
+	openTabById(id: string): void;
 }
 
 interface QuickMoveSettings {
@@ -49,6 +57,11 @@ const STRINGS = {
 		down: "Move down",
 		remove: "Remove",
 		addFolder: "+ Add folder",
+		addFolderShort: "Add folder",
+		listHeading: "Folders in the menu",
+		introName: "How it works",
+		emptyState: "No folders yet. Add the ones you move notes to most often.",
+		newFolder: "New folder",
 	},
 	zh: {
 		moveTo: "移动到…",
@@ -70,11 +83,16 @@ const STRINGS = {
 		down: "下移",
 		remove: "删除",
 		addFolder: "+ 添加文件夹",
+		addFolderShort: "添加文件夹",
+		listHeading: "菜单里的文件夹",
+		introName: "说明",
+		emptyState: "还没有文件夹。把最常移动到的几个加进来。",
+		newFolder: "新文件夹",
 	},
 };
 
-// 跟随 Obsidian 的界面语言（getLanguage() 要 1.8.7，这里沿用 localStorage 的写法，minAppVersion 不用升）
-const t = (window.localStorage.getItem("language") || "en").startsWith("zh") ? STRINGS.zh : STRINGS.en;
+// 跟随 Obsidian 的界面语言
+const t = getLanguage().startsWith("zh") ? STRINGS.zh : STRINGS.en;
 
 /** "" / "/" 都表示库的根目录 */
 function cleanFolderPath(path: string): string {
@@ -104,7 +122,7 @@ export default class QuickMovePlugin extends Plugin {
 		// 在文件列表里给文件夹改名时，快捷列表跟着改
 		this.registerEvent(
 			this.app.vault.on("rename", (file, oldPath) => {
-				if (file instanceof TFolder) this.onFolderRenamed(oldPath, file.path);
+				if (file instanceof TFolder) void this.onFolderRenamed(oldPath, file.path);
 			}),
 		);
 
@@ -130,7 +148,8 @@ export default class QuickMovePlugin extends Plugin {
 
 	async loadSettings() {
 		const data = (await this.loadData()) as Partial<QuickMoveSettings> | null;
-		this.settings = { folders: Array.isArray(data?.folders) ? data!.folders : [] };
+		const folders = data?.folders;
+		this.settings = { folders: Array.isArray(folders) ? folders : [] };
 	}
 
 	async saveSettings() {
@@ -185,7 +204,7 @@ export default class QuickMovePlugin extends Plugin {
 				} else if (!exists) {
 					item.setDisabled(true);
 				} else {
-					item.onClick(() => this.moveTo(file, path, label));
+					item.onClick(() => void this.moveTo(file, path, label));
 				}
 			});
 		}
@@ -197,16 +216,17 @@ export default class QuickMovePlugin extends Plugin {
 				.setTitle(t.otherFolder)
 				.setIcon("folder-search")
 				.onClick(() =>
-					new FolderPickerModal(this.app, current, (folder) =>
-						this.moveTo(file, cleanFolderPath(folder.path), cleanFolderPath(folder.path)),
-					).open(),
+					new FolderPickerModal(this.app, current, (folder) => {
+						void this.moveTo(file, cleanFolderPath(folder.path), cleanFolderPath(folder.path));
+					}).open(),
 				),
 		);
 		return menu;
 	}
 
 	private openSettings() {
-		const setting = (this.app as any).setting;
+		// 设置面板不在公开 API 里
+		const setting = (this.app as unknown as { setting?: AppSetting }).setting;
 		setting?.open();
 		setting?.openTabById(this.manifest.id);
 	}
@@ -232,7 +252,7 @@ export default class QuickMovePlugin extends Plugin {
 			const deadline = Date.now() + 5000;
 			while (this.app.vault.getAbstractFileByPath(target) !== file) {
 				if (Date.now() >= deadline) throw new Error(t.timeout);
-				await new Promise((r) => setTimeout(r, 25));
+				await new Promise((r) => window.setTimeout(r, 25));
 			}
 		} catch (e) {
 			console.error("[quick-move]", e);
@@ -269,9 +289,7 @@ class FolderPickerModal extends FuzzySuggestModal<TFolder> {
 	}
 
 	getItems(): TFolder[] {
-		return this.app.vault
-			.getAllLoadedFiles()
-			.filter((f): f is TFolder => f instanceof TFolder && cleanFolderPath(f.path) !== this.current);
+		return this.app.vault.getAllFolders(true).filter((f) => cleanFolderPath(f.path) !== this.current);
 	}
 
 	getItemText(folder: TFolder): string {
@@ -291,8 +309,8 @@ class FolderSuggest extends AbstractInputSuggest<TFolder> {
 	getSuggestions(query: string): TFolder[] {
 		const q = query.toLowerCase();
 		return this.app.vault
-			.getAllLoadedFiles()
-			.filter((f): f is TFolder => f instanceof TFolder && f.path.toLowerCase().includes(q))
+			.getAllFolders(true)
+			.filter((f) => f.path.toLowerCase().includes(q))
 			.sort((a, b) => a.path.localeCompare(b.path))
 			.slice(0, 50);
 	}
@@ -313,83 +331,111 @@ class QuickMoveSettingTab extends PluginSettingTab {
 		super(app, plugin);
 	}
 
+	/** 1.13+ 的声明式设置页：能被设置面板搜索到；增删用 list 自带的按钮，顺序仍用上下箭头 */
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		const folders = this.plugin.settings.folders;
+		return [
+			{ name: t.introName, desc: t.settingsIntro },
+			{
+				type: "list",
+				heading: t.listHeading,
+				emptyState: t.emptyState,
+				addItem: { name: t.addFolderShort, action: () => void this.addFolder() },
+				onDelete: (i) => void this.removeFolder(i),
+				items: folders.map((entry, i) => ({
+					name: entry.alias.trim() || entry.path || t.newFolder,
+					aliases: [entry.path],
+					render: (setting: Setting) => this.renderRow(setting, i, false),
+				})),
+			},
+		];
+	}
+
+	/** 1.13 之前的版本走这里（minAppVersion 是 1.8.7） */
 	display() {
 		const { containerEl } = this;
 		containerEl.empty();
-		containerEl.createEl("p", {
-			text: t.settingsIntro,
-			cls: "setting-item-description",
+		containerEl.createEl("p", { text: t.settingsIntro, cls: "setting-item-description" });
+		this.plugin.settings.folders.forEach((_, i) => this.renderRow(new Setting(containerEl), i, true));
+		new Setting(containerEl).addButton((b) => b.setButtonText(t.addFolder).onClick(() => void this.addFolder()));
+	}
+
+	private refresh() {
+		if (requireApiVersion("1.13.0")) this.update();
+		else this.display();
+	}
+
+	private renderRow(setting: Setting, i: number, withRemove: boolean) {
+		const folders = this.plugin.settings.folders;
+		const entry = folders[i];
+		setting.setClass("quick-move-row");
+		setting.infoEl.hide();
+
+		setting.addText((text) => {
+			text.setPlaceholder(t.pathPlaceholder).setValue(entry.path);
+			text.inputEl.addClass("quick-move-path");
+			new FolderSuggest(this.app, text.inputEl);
+			const validate = () => {
+				const p = cleanFolderPath(text.getValue());
+				const ok =
+					text.getValue().trim() !== "" &&
+					(p === "/" || this.app.vault.getAbstractFileByPath(p) instanceof TFolder);
+				text.inputEl.toggleClass("quick-move-invalid", !ok);
+				text.inputEl.title = ok ? "" : t.noSuchFolder;
+			};
+			validate();
+			text.onChange(async (value) => {
+				entry.path = value.trim();
+				validate();
+				await this.plugin.saveSettings();
+			});
 		});
 
-		const folders = this.plugin.settings.folders;
-		folders.forEach((entry, i) => {
-			const setting = new Setting(containerEl).setClass("quick-move-row");
-			setting.infoEl.remove();
-
-			setting.addText((text) => {
-				text.setPlaceholder(t.pathPlaceholder).setValue(entry.path);
-				text.inputEl.addClass("quick-move-path");
-				new FolderSuggest(this.app, text.inputEl);
-				const validate = () => {
-					const p = cleanFolderPath(text.getValue());
-					const ok =
-						text.getValue().trim() !== "" &&
-						(p === "/" || this.app.vault.getAbstractFileByPath(p) instanceof TFolder);
-					text.inputEl.toggleClass("quick-move-invalid", !ok);
-					text.inputEl.title = ok ? "" : t.noSuchFolder;
-				};
-				validate();
-				text.onChange(async (value) => {
-					entry.path = value.trim();
-					validate();
-					await this.plugin.saveSettings();
-				});
+		setting.addText((text) => {
+			text.setPlaceholder(t.aliasPlaceholder).setValue(entry.alias);
+			text.inputEl.addClass("quick-move-alias");
+			text.onChange(async (value) => {
+				entry.alias = value;
+				await this.plugin.saveSettings();
 			});
+		});
 
-			setting.addText((text) => {
-				text.setPlaceholder(t.aliasPlaceholder).setValue(entry.alias);
-				text.inputEl.addClass("quick-move-alias");
-				text.onChange(async (value) => {
-					entry.alias = value;
-					await this.plugin.saveSettings();
-				});
-			});
-
-			setting.addExtraButton((b) =>
-				b
-					.setIcon("arrow-up")
-					.setTooltip(t.up)
-					.setDisabled(i === 0)
-					.onClick(() => this.swap(i, i - 1)),
-			);
-			setting.addExtraButton((b) =>
-				b
-					.setIcon("arrow-down")
-					.setTooltip(t.down)
-					.setDisabled(i === folders.length - 1)
-					.onClick(() => this.swap(i, i + 1)),
-			);
+		setting.addExtraButton((b) =>
+			b
+				.setIcon("arrow-up")
+				.setTooltip(t.up)
+				.setDisabled(i === 0)
+				.onClick(() => void this.swap(i, i - 1)),
+		);
+		setting.addExtraButton((b) =>
+			b
+				.setIcon("arrow-down")
+				.setTooltip(t.down)
+				.setDisabled(i === folders.length - 1)
+				.onClick(() => void this.swap(i, i + 1)),
+		);
+		if (withRemove) {
 			setting.addExtraButton((b) =>
 				b
 					.setIcon("x")
 					.setTooltip(t.remove)
-					.onClick(async () => {
-						folders.splice(i, 1);
-						await this.plugin.saveSettings();
-						this.display();
-					}),
+					.onClick(() => void this.removeFolder(i)),
 			);
-		});
+		}
+	}
 
-		new Setting(containerEl).addButton((b) =>
-			b.setButtonText(t.addFolder).onClick(async () => {
-				folders.push({ path: "", alias: "" });
-				await this.plugin.saveSettings();
-				this.display();
-				const inputs = containerEl.querySelectorAll<HTMLInputElement>(".quick-move-path");
-				inputs[inputs.length - 1]?.focus();
-			}),
-		);
+	private async addFolder() {
+		this.plugin.settings.folders.push({ path: "", alias: "" });
+		await this.plugin.saveSettings();
+		this.refresh();
+		const inputs = this.containerEl.querySelectorAll<HTMLInputElement>(".quick-move-path");
+		inputs[inputs.length - 1]?.focus();
+	}
+
+	private async removeFolder(i: number) {
+		this.plugin.settings.folders.splice(i, 1);
+		await this.plugin.saveSettings();
+		this.refresh();
 	}
 
 	private async swap(a: number, b: number) {
@@ -397,6 +443,6 @@ class QuickMoveSettingTab extends PluginSettingTab {
 		if (b < 0 || b >= folders.length) return;
 		[folders[a], folders[b]] = [folders[b], folders[a]];
 		await this.plugin.saveSettings();
-		this.display();
+		this.refresh();
 	}
 }
