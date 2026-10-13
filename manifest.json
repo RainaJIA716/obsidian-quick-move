@@ -1,0 +1,9 @@
+{
+  "id": "quick-move",
+  "name": "Quick Move",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.10",
+  "description": "Move the current note to a folder in one click: a button in the note header opens a menu of your favorite preset folders, in your order, with aliases. Updates links. Works on mobile.",
+  "author": "RainaJIA716",
+  "isDesktopOnly": false
+}

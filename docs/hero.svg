@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; fill: #2f2a24; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .title { font-size: 34px; font-weight: 700; }
+    .sub { font-size: 18px; fill: #8b8177; }
+    .crumb { font-size: 16px; fill: #8b8177; }
+    .crumb-b { font-size: 16px; fill: #2f2a24; }
+    .h1 { font-size: 28px; font-weight: 700; }
+    .line { fill: #e9e3d8; }
+    .item { font-size: 16px; }
+    .dim { fill: #b3aa9f; }
+    .note { font-size: 15px; fill: #5c5249; }
+    .note-b { font-size: 15px; font-weight: 600; fill: #7a5af8; }
+    .icon { fill: none; stroke: #8b8177; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-hi { fill: none; stroke: #7a5af8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .icon-dim { fill: none; stroke: #c9c1b6; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .callout { fill: none; stroke: #7a5af8; stroke-width: 1.6; stroke-dasharray: 5 4; }
+  </style>
+  <defs>
+    <!-- lucide folder-input -->
+    <g id="folder-input">
+      <path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-1.73"/>
+      <path d="M2 13h10"/><path d="m9 16 3-3-3-3"/>
+    </g>
+    <!-- lucide glasses -->
+    <g id="glasses">
+      <circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/>
+      <path d="M14 15a2 2 0 0 0-2-1 2 2 0 0 0-2 1"/><path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2"/><path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2"/>
+    </g>
+    <g id="more"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></g>
+    <!-- lucide folder -->
+    <g id="folder"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></g>
+    <!-- lucide folder-search -->
+    <g id="folder-search">
+      <path d="M10.7 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v4.1"/>
+      <circle cx="17" cy="17" r="3"/><path d="m21 21-1.9-1.9"/>
+    </g>
+    <g id="check"><path d="M20 6 9 17l-5-5"/></g>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#5c4a32" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="#FAF8F4"/>
+
+  <text x="60" y="78" class="title">Quick Move</text>
+  <text x="60" y="110" class="sub">Your folders, your order, one click.</text>
+
+  <!-- ===== Desktop note pane ===== -->
+  <g transform="translate(60,150)">
+    <rect width="720" height="580" rx="14" fill="#fdfcfa" stroke="#e3ddd2" filter="url(#shadow)"/>
+    <path d="M0 14a14 14 0 0 1 14-14h692a14 14 0 0 1 14 14v42H0Z" fill="#f4efe6"/>
+    <line x1="0" y1="56" x2="720" y2="56" stroke="#e3ddd2"/>
+    <text x="26" y="34" class="crumb">←   →</text>
+    <text x="96" y="34" class="crumb">Inbox  /  </text>
+    <text x="172" y="34" class="crumb-b">Reading notes on design</text>
+
+    <!-- header actions: our button, reading view, more -->
+    <rect x="566" y="12" width="36" height="32" rx="7" fill="#ece5f9"/>
+    <use href="#folder-input" class="icon-hi" transform="translate(572,16)"/>
+    <use href="#glasses" class="icon" transform="translate(620,16)"/>
+    <use href="#more" class="icon" transform="translate(668,16)"/>
+
+    <!-- note body -->
+    <text x="40" y="112" class="h1">Reading notes on design</text>
+    <rect x="40" y="140" width="360" height="12" rx="6" class="line"/>
+    <rect x="40" y="166" width="300" height="12" rx="6" class="line"/>
+    <rect x="40" y="192" width="330" height="12" rx="6" class="line"/>
+    <rect x="40" y="240" width="250" height="12" rx="6" class="line"/>
+    <rect x="40" y="266" width="320" height="12" rx="6" class="line"/>
+    <rect x="40" y="292" width="210" height="12" rx="6" class="line"/>
+
+    <!-- dropdown menu, right edge aligned with the button -->
+    <g transform="translate(372,52)">
+      <rect width="230" height="226" rx="10" fill="#ffffff" stroke="#e3ddd2" filter="url(#shadow)"/>
+      <use href="#folder" class="icon" transform="translate(14,15) scale(0.75)"/>
+      <text x="44" y="30" class="item">Projects</text>
+      <rect x="6" y="44" width="218" height="34" rx="6" fill="#f1ecfd"/>
+      <use href="#folder" class="icon-hi" transform="translate(14,50) scale(0.75)"/>
+      <text x="44" y="66" class="item" style="fill:#7a5af8;font-weight:600">Reading</text>
+      <use href="#folder" class="icon-dim" transform="translate(14,87) scale(0.75)"/>
+      <text x="44" y="102" class="item dim">Inbox</text>
+      <use href="#check" class="icon-dim" transform="translate(196,88) scale(0.7)"/>
+      <use href="#folder" class="icon" transform="translate(14,123) scale(0.75)"/>
+      <text x="44" y="138" class="item">Archive/2026</text>
+      <use href="#folder" class="icon" transform="translate(14,159) scale(0.75)"/>
+      <text x="44" y="174" class="item">Ideas</text>
+      <line x1="10" y1="188" x2="220" y2="188" stroke="#ece6dc"/>
+      <use href="#folder-search" class="icon" transform="translate(14,195) scale(0.75)"/>
+      <text x="44" y="210" class="item">Other folder…</text>
+    </g>
+
+    <!-- callouts inside the pane -->
+    <path d="M584 -4 C 584 -22, 560 -30, 530 -30" class="callout"/>
+    <text x="372" y="-25" class="note-b">right next to reading view</text>
+
+    <g transform="translate(40,360)">
+      <text x="0" y="0" class="note-b">How the menu works</text>
+      <text x="0" y="28" class="note">• Folders appear in the order you set, with optional short aliases</text>
+      <text x="0" y="52" class="note">• The folder the note is already in is checked and greyed out</text>
+      <text x="0" y="76" class="note">• “Other folder…” searches every folder in the vault</text>
+      <text x="0" y="122" class="note-b">What a move does</text>
+      <text x="0" y="150" class="note">• Links to the note are updated by Obsidian, as with any rename</text>
+      <text x="0" y="174" class="note">• Same name already there? It becomes </text>
+      <text x="278" y="174" class="note mono">note-1.md</text>
+      <text x="364" y="174" class="note">, nothing is overwritten</text>
+      <text x="0" y="198" class="note">• Rename a folder and the preset follows it</text>
+    </g>
+  </g>
+
+  <!-- ===== Phone ===== -->
+  <g transform="translate(850,150)">
+    <rect width="290" height="580" rx="36" fill="#2f2a24"/>
+    <rect x="10" y="10" width="270" height="560" rx="28" fill="#fdfcfa"/>
+    <rect x="110" y="20" width="70" height="18" rx="9" fill="#2f2a24"/>
+    <!-- phone header -->
+    <rect x="160" y="54" width="108" height="38" rx="19" fill="#f4efe6"/>
+    <use href="#folder-input" class="icon-hi" transform="translate(172,61)"/>
+    <use href="#glasses" class="icon" transform="translate(204,61)"/>
+    <use href="#more" class="icon" transform="translate(236,61)"/>
+    <text x="30" y="132" style="font-size:20px;font-weight:700">Reading notes</text>
+    <rect x="30" y="150" width="200" height="10" rx="5" class="line"/>
+    <rect x="30" y="170" width="170" height="10" rx="5" class="line"/>
+    <rect x="30" y="190" width="190" height="10" rx="5" class="line"/>
+    <!-- dim + bottom sheet -->
+    <rect x="10" y="10" width="270" height="560" rx="28" fill="#2f2a24" opacity="0.18"/>
+    <path d="M10 330h270v212a28 28 0 0 1-28 28H38a28 28 0 0 1-28-28Z" fill="#f4efe6"/>
+    <rect x="125" y="342" width="40" height="5" rx="2.5" fill="#c9c1b6"/>
+    <rect x="24" y="360" width="242" height="142" rx="14" fill="#ffffff"/>
+    <use href="#folder" class="icon" transform="translate(36,371) scale(0.75)"/>
+    <text x="64" y="386" class="item">Projects</text>
+    <line x1="36" y1="406" x2="254" y2="406" stroke="#ece6dc"/>
+    <use href="#folder" class="icon" transform="translate(36,417) scale(0.75)"/>
+    <text x="64" y="432" class="item">Reading</text>
+    <line x1="36" y1="452" x2="254" y2="452" stroke="#ece6dc"/>
+    <use href="#folder" class="icon-dim" transform="translate(36,463) scale(0.75)"/>
+    <text x="64" y="478" class="item dim">Inbox</text>
+    <use href="#check" class="icon-dim" transform="translate(232,464) scale(0.7)"/>
+    <rect x="24" y="512" width="242" height="44" rx="14" fill="#ffffff"/>
+    <use href="#folder-search" class="icon" transform="translate(36,525) scale(0.75)"/>
+    <text x="64" y="540" class="item">Other folder…</text>
+    <text x="145" y="618" text-anchor="middle" class="note-b">Same button on phones</text>
+  </g>
+</svg>

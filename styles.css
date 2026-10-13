@@ -1,0 +1,16 @@
+.quick-move-row .setting-item-control {
+	justify-content: flex-start;
+	flex-wrap: wrap;
+}
+
+.quick-move-row input.quick-move-path {
+	flex: 2 1 12em;
+}
+
+.quick-move-row input.quick-move-alias {
+	flex: 1 1 6em;
+}
+
+.quick-move-row input.quick-move-invalid {
+	border-color: var(--text-error);
+}

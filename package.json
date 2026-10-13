@@ -1,0 +1,18 @@
+{
+  "name": "quick-move",
+  "version": "0.1.0",
+  "description": "Move the current note to a folder in one click: a button in the note header opens a menu of your favorite preset folders, in your order, with aliases. Updates links. Works on mobile.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+  },
+  "keywords": [],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "esbuild": "^0.20.0",
+    "obsidian": "latest",
+    "typescript": "^5.4.0"
+  }
+}
