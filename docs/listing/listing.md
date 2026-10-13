@@ -19,24 +19,24 @@ word must appear as a substring, results sorted by downloads):
   "one click move".
 - "or file" was left out on purpose: the button only appears on Markdown notes.
 
-## About (≤1000)
+## About (≤1000, 955 chars, plain text)
 
-Most notes end up in the same few folders, yet moving one still takes
-right-click → Move file to… → typing the folder name.
+The backend field is plain text: Markdown list markers and emphasis are not rendered,
+so this is written as short paragraphs. Paste everything between the lines.
 
-Quick Move adds a "Move to…" button to the note header, right next to the
-reading-view button. It opens a menu of your own folders, in the order you set,
-with optional short aliases. One click and the note is moved.
+---
 
-- The folder the note is already in is checked and greyed out.
-- "Other folder…" searches every folder for one-off moves, and works even if
-  the core Files plugin is turned off.
-- Links are updated through Obsidian's own rename.
-- If a note with the same name is already there, the moved note becomes
-  name-1 instead of overwriting anything.
-- Renaming a folder updates the preset list.
-- Same button on phones and tablets, with a bottom-sheet menu.
-- English and Chinese interface.
+Most notes end up in the same few folders, yet moving one still takes a right-click, "Move file to…", and typing the folder name.
+
+Quick Move adds a "Move to…" button to the note header, right next to the reading-view button. It opens a menu of your own folders, in the order you set, with optional short aliases. One click and the note is moved.
+
+The folder the note is already in is shown checked and greyed out. "Other folder…" at the bottom searches every folder in the vault for one-off moves, and works even if the core Files plugin is turned off.
+
+Moves go through Obsidian's own rename, so links to the note are updated. If a note with the same name is already in the target folder, the moved note becomes name-1 instead of overwriting anything. Renaming a folder updates your preset list.
+
+The same button works on phones and tablets, where the menu opens as a bottom sheet. The interface is in English and Chinese, following Obsidian's language.
+
+---
 
 ## Icon
 
